@@ -1,0 +1,7 @@
+project_id = "eutxbneijehskdfooico"
+
+[functions.botanist-chat]
+verify_jwt = false
+
+[functions.identify-plant]
+verify_jwt = false

@@ -1,0 +1,150 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Kid-friendly garden theme colors */
+    --background: 120 40% 98%;
+    --foreground: 140 60% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 140 60% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 140 60% 15%;
+
+    /* Vibrant green primary - plants/growth */
+    --primary: 130 65% 45%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Sunny yellow secondary - sunshine/energy */
+    --secondary: 45 100% 55%;
+    --secondary-foreground: 140 60% 15%;
+
+    /* Sky blue muted - calm/water */
+    --muted: 200 50% 94%;
+    --muted-foreground: 200 25% 40%;
+
+    /* Orange accent - fun/reward */
+    --accent: 25 95% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Earth brown for soil */
+    --earth: 30 35% 45%;
+    --earth-foreground: 0 0% 100%;
+
+    /* Achievement gold */
+    --gold: 45 100% 50%;
+    --gold-foreground: 140 60% 15%;
+
+    --border: 130 30% 85%;
+    --input: 130 30% 90%;
+    --ring: 130 65% 45%;
+
+    --radius: 1rem;
+
+    /* Gradients */
+    --gradient-garden: linear-gradient(135deg, hsl(130 65% 45%), hsl(150 60% 50%));
+    --gradient-sun: linear-gradient(135deg, hsl(45 100% 55%), hsl(35 100% 60%));
+    --gradient-sky: linear-gradient(180deg, hsl(200 70% 85%), hsl(200 50% 94%));
+    
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -4px hsl(130 65% 45% / 0.15);
+    --shadow-hover: 0 8px 30px -6px hsl(130 65% 45% / 0.25);
+    
+    /* Animations */
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html, body {
+    @apply bg-white text-foreground;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+  }
+  
+  #root {
+    min-height: 100vh;
+    width: 100%;
+    background-color: white;
+  }
+}
+
+@layer utilities {
+  /* Safe area padding for mobile devices */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-area-left {
+    padding-left: env(safe-area-inset-left);
+  }
+  
+  .safe-area-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Consistent spacing system for kids-friendly UI */
+  .page-container {
+    @apply max-w-md mx-auto px-4 sm:px-6;
+  }
+
+  .section-spacing {
+    @apply space-y-6;
+  }
+
+  .card-spacing {
+    @apply p-5 sm:p-6;
+  }
+
+  .header-spacing {
+    @apply px-4 sm:px-6 py-4 sm:py-5;
+  }
+
+  /* Enhanced shadows for depth */
+  .shadow-soft {
+    box-shadow: 0 2px 8px -2px hsl(130 65% 45% / 0.1);
+  }
+
+  .shadow-medium {
+    box-shadow: 0 4px 16px -4px hsl(130 65% 45% / 0.15);
+  }
+
+  .shadow-large {
+    box-shadow: 0 8px 24px -6px hsl(130 65% 45% / 0.2);
+  }
+
+  /* Touch-friendly button sizes for kids */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Smooth transitions */
+  .transition-smooth {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  /* Card hover effects */
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-medium hover:-translate-y-0.5;
+  }
+}
