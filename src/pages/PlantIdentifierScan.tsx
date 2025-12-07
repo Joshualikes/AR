@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Circle, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type ScanStep = 'analyzing' | 'detecting' | 'identifying' | 'complete';
 
@@ -12,6 +13,7 @@ const PlantIdentifierScan = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { t } = useLanguage();
   
   const imageData = location.state?.image;
   const mode = location.state?.mode || 'plant';
@@ -61,12 +63,12 @@ const PlantIdentifierScan = () => {
 
       if (!data || data.error) {
         console.error('Data error:', data?.error);
-        throw new Error(data?.error || 'Hindi ma-identify ang halaman');
+        throw new Error(data?.error || t("plantIdentifier.failed"));
       }
 
       // Transform result to match expected format
       const result = {
-        name: data.name || 'Hindi Kilala',
+        name: data.name || t("result.unknown"),
         scientificName: data.scientificName || 'N/A',
         commonNames: data.commonNames || [],
         confidence: data.confidence || 0,
@@ -97,10 +99,10 @@ const PlantIdentifierScan = () => {
 
     } catch (err: any) {
       console.error('Identification error:', err);
-      setError(err.message || 'Hindi ma-identify ang halaman');
+      setError(err.message || t("plantIdentifier.failed"));
       toast({
-        title: "Nabigo ang Identification",
-        description: err.message || "Hindi ma-identify ang halaman. Subukan ulit.",
+        title: t("plantIdentifier.failed"),
+        description: err.message || t("common.tryAgain"),
         variant: "destructive",
       });
     }
@@ -109,9 +111,9 @@ const PlantIdentifierScan = () => {
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   const steps: { id: ScanStep; label: string }[] = [
-    { id: 'analyzing', label: 'Sinusuri ang larawan' },
-    { id: 'detecting', label: 'Naghahanap ng halaman' },
-    { id: 'identifying', label: 'Kinikilala gamit ang AI' },
+    { id: 'analyzing', label: t("plantIdentifier.analyzingImage") },
+    { id: 'detecting', label: t("plantIdentifier.detecting") },
+    { id: 'identifying', label: t("plantIdentifier.identifying") },
   ];
 
   const getStepStatus = (stepId: ScanStep) => {
@@ -131,13 +133,13 @@ const PlantIdentifierScan = () => {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center p-4">
         <Card className="bg-gray-900 border-gray-800 text-white p-8 max-w-md w-full text-center">
-          <h2 className="text-2xl font-bold mb-4">Nabigo ang Identification</h2>
+          <h2 className="text-2xl font-bold mb-4">{t("plantIdentifier.failed")}</h2>
           <p className="text-gray-400 mb-6">{error}</p>
           <Button
             onClick={() => navigate('/plant-identifier')}
             className="w-full bg-green-600 hover:bg-green-700"
           >
-            Subukan Ulit
+            {t("plantIdentifier.tryAgain")}
           </Button>
         </Card>
       </div>
@@ -160,8 +162,8 @@ const PlantIdentifierScan = () => {
 
         {/* Scanning Info */}
         <Card className="bg-gray-900 border-gray-800 text-white p-8">
-          <h1 className="text-3xl font-bold mb-2 text-center">Nag-scan para sayo</h1>
-          <p className="text-gray-400 text-center mb-8">Sinusuri ang halaman gamit ang AI</p>
+          <h1 className="text-3xl font-bold mb-2 text-center">{t("plantIdentifier.scanning")}</h1>
+          <p className="text-gray-400 text-center mb-8">{t("plantIdentifier.analyzing")}</p>
 
           {/* Steps */}
           <div className="space-y-4">

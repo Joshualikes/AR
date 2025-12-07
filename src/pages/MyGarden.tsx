@@ -18,12 +18,14 @@ import {
 } from "lucide-react";
 import { useUserPlants } from "@/hooks/useGardenData";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 
 const MyGarden = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const { plants, loading, waterPlant, deletePlant, refetch } = useUserPlants();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -41,7 +43,8 @@ const MyGarden = () => {
   };
 
   const handleDeletePlant = async (plantId: string, plantName: string) => {
-    if (window.confirm(`Sigurado ka bang gusto mong tanggalin ang "${plantName}"?`)) {
+    const displayName = plantName === "Hindi Halaman" ? t("result.notAPlant") : plantName;
+    if (window.confirm(t("garden.confirmDelete").replace("{name}", displayName))) {
       await deletePlant(plantId);
     }
   };
@@ -51,7 +54,7 @@ const MyGarden = () => {
   };
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'Hindi pa';
+    if (!dateString) return t("garden.notYet");
     const date = new Date(dateString);
     return date.toLocaleDateString('tl-PH', { 
       month: 'short', 
@@ -68,12 +71,12 @@ const MyGarden = () => {
 
   const getGrowthStageLabel = (stage: number) => {
     switch (stage) {
-      case 1: return 'Binhi 🌱';
-      case 2: return 'Tumutubo 🌿';
-      case 3: return 'Lumalaki 🪴';
-      case 4: return 'Malaki na 🌳';
-      case 5: return 'Handang Anihin 🥬';
-      default: return 'Binhi 🌱';
+      case 1: return t("garden.growthStage.seed");
+      case 2: return t("garden.growthStage.sprouting");
+      case 3: return t("garden.growthStage.growing");
+      case 4: return t("garden.growthStage.big");
+      case 5: return t("garden.growthStage.ready");
+      default: return t("garden.growthStage.seed");
     }
   };
 
@@ -108,8 +111,8 @@ const MyGarden = () => {
       const checkAndNotify = () => {
         const currentNeedsWater = plants.filter(plant => needsWatering(plant.lastWatered));
         if (currentNeedsWater.length > 0) {
-          new Notification('💧 Kailangan Diligan ang Halaman!', {
-            body: `May ${currentNeedsWater.length} halaman na kailangan ng tubig.`,
+          new Notification(t("garden.notificationTitle"), {
+            body: t("garden.notificationBody").replace("{count}", currentNeedsWater.length.toString()),
             icon: '/favicon.ico',
             tag: 'plant-watering-reminder',
             requireInteraction: false,
@@ -135,7 +138,7 @@ const MyGarden = () => {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-green-50 to-white">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin text-green-600 mx-auto mb-4" />
-          <p className="text-lg text-gray-600">Naglo-load...</p>
+          <p className="text-lg text-gray-600">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -147,7 +150,7 @@ const MyGarden = () => {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <div className="w-1 h-6 bg-gradient-to-b from-green-500 to-green-600 rounded-full"></div>
-            <h1 className="text-2xl font-bold text-gray-800">Aking Hardin</h1>
+            <h1 className="text-2xl font-bold text-gray-800">{t("garden.title")}</h1>
           </div>
           {plants.length > 0 && (
             <div className="flex items-center gap-1.5 bg-green-100 px-3 py-1.5 rounded-full">
@@ -163,16 +166,16 @@ const MyGarden = () => {
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Sprout className="w-10 h-10 text-green-600" />
               </div>
-              <h2 className="text-xl font-bold text-gray-800 mb-2">Walang Halaman Pa</h2>
-              <p className="text-gray-600 mb-2">Walang halaman pa sa iyong hardin.</p>
+              <h2 className="text-xl font-bold text-gray-800 mb-2">{t("garden.noPlants")}</h2>
+              <p className="text-gray-600 mb-2">{t("garden.noPlantsDesc")}</p>
               <p className="text-sm text-gray-500 mb-6">
-                Mag-simula sa pamamagitan ng pag-identify ng halaman!
+                {t("garden.noPlantsSubtext")}
               </p>
               <Button
                 onClick={() => navigate('/plant-identifier')}
                 className="bg-green-600 hover:bg-green-700 text-white px-6"
               >
-                Mag-identify ng Halaman
+                {t("garden.identifyPlant")}
               </Button>
             </div>
           </Card>
@@ -183,10 +186,10 @@ const MyGarden = () => {
               <Alert className="mb-6 border-orange-200 bg-orange-50">
                 <AlertCircle className="h-5 w-5 text-orange-600" />
                 <AlertTitle className="text-orange-800 font-bold">
-                  💧 Kailangan Diligan ang Halaman!
+                  {t("garden.wateringAlert")}
                 </AlertTitle>
                 <AlertDescription className="text-orange-700 mt-1">
-                  May <strong>{plantsNeedingWater.length}</strong> halaman na kailangan ng tubig (24 oras na ang nakalipas mula nang huling diligan).
+                  {t("garden.wateringAlertDesc").replace("{count}", plantsNeedingWater.length.toString())}
                 </AlertDescription>
               </Alert>
             )}
@@ -204,7 +207,7 @@ const MyGarden = () => {
                     {plant.imageUrl ? (
                       <img
                         src={plant.imageUrl}
-                        alt={plant.plantName}
+                        alt={plant.plantName === "Hindi Halaman" ? t("result.notAPlant") : plant.plantName}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -225,7 +228,7 @@ const MyGarden = () => {
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
                         <h3 className="text-lg font-bold text-gray-800 mb-1 line-clamp-1">
-                          {plant.plantName}
+                          {plant.plantName === "Hindi Halaman" ? t("result.notAPlant") : plant.plantName}
                         </h3>
                         <p className="text-sm text-gray-500 italic line-clamp-1">
                           {plant.plantType}
@@ -250,14 +253,14 @@ const MyGarden = () => {
                         <div className="bg-orange-100 px-2.5 py-1 rounded-full animate-pulse border border-orange-300">
                           <span className="text-xs font-semibold text-orange-700 flex items-center gap-1">
                             <Bell className="w-3 h-3" />
-                            Kailangan ng tubig!
+                            {t("garden.needsWater")}
                           </span>
                         </div>
                       )}
                       {!needsWatering(plant.lastWatered) && plant.lastWatered && (
                         <div className="bg-green-100 px-2.5 py-1 rounded-full">
                           <span className="text-xs font-semibold text-green-700">
-                            💧 Diligan ulit sa {24 - (getHoursSinceWatered(plant.lastWatered) || 0)} oras
+                            💧 {t("garden.waterAgain").replace("{hours}", (24 - (getHoursSinceWatered(plant.lastWatered) || 0)).toString())}
                           </span>
                         </div>
                       )}
@@ -266,7 +269,7 @@ const MyGarden = () => {
                     {/* Date Info */}
                     <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-3">
                       <Calendar className="w-3.5 h-3.5" />
-                      <span>Itinanim: {formatDate(plant.plantedAt)}</span>
+                      <span>{t("garden.planted")} {formatDate(plant.plantedAt)}</span>
                     </div>
 
                     {/* Last Watered Info */}
@@ -274,8 +277,8 @@ const MyGarden = () => {
                       <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-2">
                         <Droplets className="w-3.5 h-3.5" />
                         <span>
-                          Huling diligan: {getHoursSinceWatered(plant.lastWatered) !== null 
-                            ? `${getHoursSinceWatered(plant.lastWatered)} oras na ang nakalipas`
+                          {t("garden.lastWatered")} {getHoursSinceWatered(plant.lastWatered) !== null 
+                            ? `${getHoursSinceWatered(plant.lastWatered)} ${t("garden.hoursAgo")}`
                             : formatDate(plant.lastWatered)}
                         </span>
                       </div>
@@ -293,7 +296,7 @@ const MyGarden = () => {
                         )}
                       >
                         <Droplets className="w-4 h-4 mr-1.5" />
-                        {needsWatering(plant.lastWatered) ? "Diligan Ngayon!" : "Diligan"}
+                        {needsWatering(plant.lastWatered) ? t("garden.waterNow") : t("garden.water")}
                       </Button>
                       <Button
                         onClick={() => handleDeletePlant(plant.id, plant.plantName)}

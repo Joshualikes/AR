@@ -1,36 +1,38 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { LayoutGrid, Sprout, Camera, Wifi, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
 
   const navItems = [
     {
       icon: LayoutGrid,
-      label: "Home",
+      label: t("nav.home"),
       path: "/home",
     },
     {
       icon: Sprout,
-      label: "My Garden",
+      label: t("nav.garden"),
       path: "/garden",
     },
     {
       icon: Camera,
-      label: "Identify",
+      label: t("nav.identify"),
       path: "/plant-identifier",
       isPrimary: true,
     },
     {
       icon: Wifi,
-      label: "IoT Sensors",
+      label: t("nav.iot"),
       path: "/iot",
     },
     {
       icon: User,
-      label: "Profile",
+      label: t("nav.profile"),
       path: "/profile",
     },
   ];

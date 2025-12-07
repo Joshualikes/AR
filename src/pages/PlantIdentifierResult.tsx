@@ -19,11 +19,13 @@ import {
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const PlantIdentifierResult = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { t, language } = useLanguage();
   const { plants, addPlant, loading: plantsLoading, refetch } = useUserPlants();
 
   const imageData = location.state?.image;
@@ -54,12 +56,12 @@ const PlantIdentifierResult = () => {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center p-4">
         <Card className="p-8 text-center">
-          <p className="text-gray-600">Walang nahanap na resulta</p>
+          <p className="text-gray-600">{t("result.noResults")}</p>
           <Button
             onClick={() => navigate('/plant-identifier')}
             className="mt-4 bg-green-600 hover:bg-green-700"
           >
-            Subukan Ulit
+            {t("plantIdentifier.tryAgain")}
           </Button>
         </Card>
       </div>
@@ -68,8 +70,8 @@ const PlantIdentifierResult = () => {
 
   const handleUnlock = () => {
     toast({
-      title: "Na-unlock! 🔓",
-      description: "Ang premium content ay available na.",
+      title: language === "tagalog" ? "Na-unlock! 🔓" : "Unlocked! 🔓",
+      description: language === "tagalog" ? "Ang premium content ay available na." : "Premium content is now available.",
     });
   };
 
@@ -102,8 +104,8 @@ const PlantIdentifierResult = () => {
     } catch (error) {
       console.error('Error saving plant:', error);
       toast({
-        title: "Error",
-        description: "Hindi ma-save ang halaman. Subukan muli.",
+        title: t("common.error"),
+        description: language === "tagalog" ? "Hindi ma-save ang halaman. Subukan muli." : "Cannot save plant. Please try again.",
         variant: "destructive",
       });
       setIsSaved(false);
@@ -127,7 +129,9 @@ const PlantIdentifierResult = () => {
           </Button>
           
           <div className="flex-1 text-center">
-            <h1 className="text-xl font-bold text-gray-900">{selectedResult.name}</h1>
+            <h1 className="text-xl font-bold text-gray-900">
+              {selectedResult.name === "Hindi Halaman" ? t("result.notAPlant") : selectedResult.name}
+            </h1>
             <p className="text-sm text-gray-500">{selectedResult.scientificName}</p>
           </div>
           
@@ -144,17 +148,17 @@ const PlantIdentifierResult = () => {
             {isSaving ? (
               <>
                 <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
-                Nag-se-save...
+                {t("result.saving")}
               </>
             ) : isSaved ? (
               <>
                 <Check className="w-4 h-4 mr-1.5" />
-                Na-save na
+                {t("result.saved")}
               </>
             ) : (
               <>
                 <Heart className="w-4 h-4 mr-1.5" />
-                I-save sa Hardin
+                {t("result.saveGarden")}
               </>
             )}
           </Button>
@@ -166,14 +170,9 @@ const PlantIdentifierResult = () => {
         <div className="relative">
           <img
             src={imageData}
-            alt={selectedResult.name}
+            alt={selectedResult.name === "Hindi Halaman" ? t("result.notAPlant") : selectedResult.name}
             className="w-full h-64 object-cover"
           />
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-1">
-            <div className="w-2 h-2 bg-white rounded-full" />
-            <div className="w-2 h-2 bg-gray-400 rounded-full" />
-            <div className="w-2 h-2 bg-gray-400 rounded-full" />
-          </div>
         </div>
       )}
 
@@ -188,7 +187,7 @@ const PlantIdentifierResult = () => {
                 : 'text-gray-500'
             }`}
           >
-            Mga Tala
+            {t("result.notes")}
           </button>
           <button
             onClick={() => setSelectedTab('info')}
@@ -198,7 +197,7 @@ const PlantIdentifierResult = () => {
                 : 'text-gray-500'
             }`}
           >
-            Impormasyon
+            {t("result.info")}
           </button>
           <button
             onClick={() => setSelectedTab('care')}
@@ -208,30 +207,11 @@ const PlantIdentifierResult = () => {
                 : 'text-gray-500'
             }`}
           >
-            Gabay sa Pag-aalaga
+            {t("result.careGuide")}
           </button>
         </div>
       </div>
 
-      {/* Sub-tabs */}
-      {selectedTab === 'info' && (
-        <div className="px-4 pt-3 pb-2 overflow-x-auto">
-          <div className="flex gap-2">
-            {['Pangkalahatang-tanaw', 'Kinakailangan', 'Kultura', 'FAQ'].map((tab, index) => (
-              <button
-                key={tab}
-                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
-                  index === 0
-                    ? 'bg-gray-100 text-gray-900'
-                    : 'bg-white text-gray-600 border border-gray-200'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Content */}
       <div className="px-4 py-4 space-y-4">
@@ -242,15 +222,15 @@ const PlantIdentifierResult = () => {
               <div className="flex items-center gap-3">
                 <Shield className="w-8 h-8 text-red-500" />
                 <div>
-                  <p className="font-bold text-gray-900">I-unlock ng Libre</p>
-                  <p className="text-sm text-gray-600">May lason</p>
+                  <p className="font-bold text-gray-900">{t("result.unlock")}</p>
+                  <p className="text-sm text-gray-600">{t("result.poisonous")}</p>
                 </div>
               </div>
               <Button
                 onClick={handleUnlock}
                 className="bg-red-500 hover:bg-red-600 text-white"
               >
-                I-unlock
+                {t("result.unlockBtn")}
               </Button>
             </div>
           </Card>
@@ -259,13 +239,23 @@ const PlantIdentifierResult = () => {
         {/* Overview Section */}
         {selectedTab === 'info' && (
           <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-3">Pangkalahatang-tanaw</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-3">{t("result.overview")}</h2>
             <p className="text-gray-700 leading-relaxed mb-4">
-              {selectedResult.description || 
-                `${selectedResult.name} (${selectedResult.scientificName}) ay isang magandang halaman na pwedeng magpaganda sa anumang espasyo.`}
+              {(() => {
+                if (!selectedResult.description) {
+                  const displayName = selectedResult.name === "Hindi Halaman" ? t("result.notAPlant") : selectedResult.name;
+                  return t("result.defaultDescription").replace("{name}", displayName).replace("{scientificName}", selectedResult.scientificName);
+                }
+                // Check if description is the error message and translate it
+                const tagalogError = "Hindi ko makita ang halaman sa larawan. Subukan ulit ng malinaw na picture ng halaman.";
+                if (selectedResult.description === tagalogError) {
+                  return t("result.cannotSeePlant");
+                }
+                return selectedResult.description;
+              })()}
             </p>
             <button className="text-green-600 font-medium flex items-center gap-1">
-              Matuto Pa
+              {t("result.learnMore")}
               <ExternalLink className="w-4 h-4" />
             </button>
           </div>
@@ -277,7 +267,7 @@ const PlantIdentifierResult = () => {
             <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
               <Droplet className="w-6 h-6 text-blue-500 flex-shrink-0 mt-1" />
               <div>
-                <h3 className="font-bold text-gray-900 mb-1">Tubig</h3>
+                <h3 className="font-bold text-gray-900 mb-1">{t("result.water")}</h3>
                 <p className="text-gray-700">{selectedResult.careGuide.water}</p>
               </div>
             </div>
@@ -285,7 +275,7 @@ const PlantIdentifierResult = () => {
             <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
               <Sun className="w-6 h-6 text-yellow-500 flex-shrink-0 mt-1" />
               <div>
-                <h3 className="font-bold text-gray-900 mb-1">Araw</h3>
+                <h3 className="font-bold text-gray-900 mb-1">{t("result.sun")}</h3>
                 <p className="text-gray-700">{selectedResult.careGuide.sunlight}</p>
               </div>
             </div>
@@ -293,7 +283,7 @@ const PlantIdentifierResult = () => {
             <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
               <Thermometer className="w-6 h-6 text-red-500 flex-shrink-0 mt-1" />
               <div>
-                <h3 className="font-bold text-gray-900 mb-1">Temperatura</h3>
+                <h3 className="font-bold text-gray-900 mb-1">{t("result.temp")}</h3>
                 <p className="text-gray-700">{selectedResult.careGuide.temperature}</p>
               </div>
             </div>
@@ -301,7 +291,7 @@ const PlantIdentifierResult = () => {
             <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
               <Sprout className="w-6 h-6 text-green-500 flex-shrink-0 mt-1" />
               <div>
-                <h3 className="font-bold text-gray-900 mb-1">Lupa</h3>
+                <h3 className="font-bold text-gray-900 mb-1">{t("result.soil")}</h3>
                 <p className="text-gray-700">{selectedResult.careGuide.soil}</p>
               </div>
             </div>
@@ -311,13 +301,23 @@ const PlantIdentifierResult = () => {
         {/* Plant Notes Tab */}
         {selectedTab === 'notes' && (
           <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-3">Mga Tala ng Halaman</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-3">{t("result.plantNotes")}</h2>
             <p className="text-gray-700 leading-relaxed">
-              {selectedResult.description || 'Walang karagdagang tala para sa halamann ito.'}
+              {(() => {
+                if (!selectedResult.description) {
+                  return t("result.noNotes");
+                }
+                // Check if description is the error message and translate it
+                const tagalogError = "Hindi ko makita ang halaman sa larawan. Subukan ulit ng malinaw na picture ng halaman.";
+                if (selectedResult.description === tagalogError) {
+                  return t("result.cannotSeePlant");
+                }
+                return selectedResult.description;
+              })()}
             </p>
             {selectedResult.commonNames && selectedResult.commonNames.length > 0 && (
               <div className="mt-4">
-                <h3 className="font-semibold text-gray-900 mb-2">Iba pang mga Pangalan:</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">{t("result.otherNames")}</h3>
                 <div className="flex flex-wrap gap-2">
                   {selectedResult.commonNames.map((name, index) => (
                     <span key={index} className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
@@ -334,9 +334,9 @@ const PlantIdentifierResult = () => {
         <Card className="bg-green-50 border-green-200 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-bold text-gray-900">Kumpiyansa ng Pagkilala</p>
+              <p className="font-bold text-gray-900">{t("result.confidence")}</p>
               <p className="text-sm text-gray-600">
-                {Math.round(selectedResult.confidence * 100)}% tugma
+                {Math.round(selectedResult.confidence * 100)}% {t("result.match")}
               </p>
             </div>
             <div className="text-2xl font-bold text-green-600">
@@ -348,7 +348,7 @@ const PlantIdentifierResult = () => {
         {/* Alternative Results */}
         {results.length > 1 && (
           <div>
-            <h3 className="text-lg font-bold text-gray-900 mb-3">Iba pang Posibleng Tugma</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-3">{t("result.alternativeMatches")}</h3>
             <div className="space-y-2">
               {results.slice(1).map((result, index) => (
                 <Card
@@ -358,7 +358,9 @@ const PlantIdentifierResult = () => {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-semibold text-gray-900">{result.name}</p>
+                      <p className="font-semibold text-gray-900">
+                        {result.name === "Hindi Halaman" ? t("result.notAPlant") : result.name}
+                      </p>
                       <p className="text-sm text-gray-600">{result.scientificName}</p>
                     </div>
                     <div className="flex items-center gap-2">

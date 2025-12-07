@@ -1,23 +1,20 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Camera } from "@capacitor/camera";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { X, Camera as CameraIcon, CircleDot, LeafyGreen, Flower2, Bug } from "lucide-react";
-import BottomNav from "@/components/BottomNav";
+import { X, Camera as CameraIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-type IdentifierMode = 'plant' | 'mushroom' | 'weed' | 'disease';
+type IdentifierMode = 'plant';
 
 const PlantIdentifier = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
-  const [mode, setMode] = useState<IdentifierMode>('plant');
+  const [mode] = useState<IdentifierMode>('plant');
   const [isCapturing, setIsCapturing] = useState(false);
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
 
   useEffect(() => {
     startCamera();
@@ -44,8 +41,8 @@ const PlantIdentifier = () => {
     } catch (error) {
       console.error('Camera error:', error);
       toast({
-        title: "Camera Error",
-        description: "Could not access camera. Please check permissions.",
+        title: t("plantIdentifier.cameraError"),
+        description: t("plantIdentifier.cameraPermission"),
         variant: "destructive",
       });
     }
@@ -82,7 +79,6 @@ const PlantIdentifier = () => {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       
       const imageData = canvas.toDataURL('image/jpeg', 0.9);
-      setCapturedImage(imageData);
       
       // Navigate to scanning screen with image
       navigate('/plant-identifier/scan', { 
@@ -94,8 +90,8 @@ const PlantIdentifier = () => {
     } catch (error) {
       console.error('Capture error:', error);
       toast({
-        title: "Capture Failed",
-        description: "Could not capture image. Please try again.",
+        title: t("plantIdentifier.captureFailed"),
+        description: t("plantIdentifier.captureError"),
         variant: "destructive",
       });
     } finally {
@@ -103,12 +99,6 @@ const PlantIdentifier = () => {
     }
   };
 
-  const modes = [
-    { id: 'plant' as IdentifierMode, label: 'Plant', icon: LeafyGreen },
-    { id: 'mushroom' as IdentifierMode, label: 'Mushroom', icon: CircleDot },
-    { id: 'weed' as IdentifierMode, label: 'Weed', icon: Flower2 },
-    { id: 'disease' as IdentifierMode, label: 'D', icon: Bug },
-  ];
 
   return (
     <div className="fixed inset-0 bg-black z-50 pb-20">
@@ -158,63 +148,10 @@ const PlantIdentifier = () => {
           </div>
         </div>
 
-        {/* Mode Selector Buttons */}
-        <div className="absolute top-16 left-4 right-4 flex gap-2 justify-center">
-          <Button
-            variant="outline"
-            size="sm"
-            className={cn(
-              "rounded-full",
-              mode === 'plant' 
-                ? "bg-green-600 text-white border-green-600" 
-                : "bg-black/50 text-white border-white/20"
-            )}
-            onClick={() => setMode('plant')}
-          >
-            Identify
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className={cn(
-              "rounded-full",
-              mode === 'mushroom'
-                ? "bg-green-600 text-white border-green-600"
-                : "bg-black/50 text-white border-white/20"
-            )}
-            onClick={() => setMode('mushroom')}
-          >
-            Multiple
-          </Button>
-        </div>
 
         {/* Bottom Navigation */}
         <div className="absolute bottom-0 left-0 right-0 bg-black/90 backdrop-blur-sm border-t border-white/10 px-4 py-3">
-          <div className="flex items-center justify-around max-w-md mx-auto">
-            {modes.map((modeItem) => {
-              const Icon = modeItem.icon;
-              const isActive = mode === modeItem.id;
-              
-              return (
-                <button
-                  key={modeItem.id}
-                  onClick={() => setMode(modeItem.id)}
-                  className={cn(
-                    "flex flex-col items-center justify-center gap-1 min-w-[60px]",
-                    isActive && "text-green-500"
-                  )}
-                >
-                  <Icon className={cn("w-6 h-6", isActive ? "text-green-500" : "text-white")} />
-                  <span className={cn(
-                    "text-xs font-medium",
-                    isActive ? "text-green-500" : "text-white"
-                  )}>
-                    {modeItem.label}
-                  </span>
-                </button>
-              );
-            })}
-            
+          <div className="flex items-center justify-center max-w-md mx-auto">
             {/* Camera Shutter Button */}
             <button
               onClick={capturePhoto}
@@ -223,13 +160,6 @@ const PlantIdentifier = () => {
             >
               <CameraIcon className="w-8 h-8 text-black" />
             </button>
-            
-            {/* Gallery Preview (placeholder) */}
-            <div className="w-12 h-12 rounded-full border-2 border-white/50 overflow-hidden">
-              <div className="w-full h-full bg-gray-700 flex items-center justify-center">
-                <span className="text-white text-xs">i</span>
-              </div>
-            </div>
           </div>
         </div>
       </div>

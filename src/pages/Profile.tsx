@@ -6,17 +6,20 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { signOut } from "@/lib/auth";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   LogOut,
   Camera,
   LeafyGreen,
-  Sparkles
+  Sparkles,
+  Languages
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { language, setLanguage, t } = useLanguage();
   const [username, setUsername] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [logoutLoading, setLogoutLoading] = useState(false);
@@ -63,8 +66,8 @@ const Profile = () => {
     window.dispatchEvent(new Event('avatarChanged'));
     
     toast({
-      title: "Nabago na! 🎉",
-      description: "Bagong avatar mo na!",
+      title: language === "tagalog" ? "Nabago na! 🎉" : "Changed! 🎉",
+      description: language === "tagalog" ? "Bagong avatar mo na!" : "Your new avatar!",
     });
   };
 
@@ -77,8 +80,8 @@ const Profile = () => {
       
       if (error) {
         toast({
-          title: "May problema",
-          description: error.message || "Hindi makapag-logout. Subukan ulit.",
+          title: language === "tagalog" ? "May problema" : "Error",
+          description: error.message || (language === "tagalog" ? "Hindi makapag-logout. Subukan ulit." : "Cannot logout. Please try again."),
           variant: "destructive",
         });
         setLogoutLoading(false);
@@ -90,8 +93,8 @@ const Profile = () => {
       
       // Show success message
       toast({
-        title: "Paalam! 👋",
-        description: "Salamat sa paggamit ng app!",
+        title: language === "tagalog" ? "Paalam! 👋" : "Goodbye! 👋",
+        description: language === "tagalog" ? "Salamat sa paggamit ng app!" : "Thanks for using the app!",
       });
 
       // Navigate immediately to auth page
@@ -100,8 +103,8 @@ const Profile = () => {
     } catch (error) {
       console.error("Logout error:", error);
       toast({
-        title: "May problema",
-        description: "Hindi makapag-logout. Subukan ulit.",
+        title: language === "tagalog" ? "May problema" : "Error",
+        description: language === "tagalog" ? "Hindi makapag-logout. Subukan ulit." : "Cannot logout. Please try again.",
         variant: "destructive",
       });
       setLogoutLoading(false);
@@ -113,7 +116,7 @@ const Profile = () => {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-green-50 to-white">
         <div className="text-center">
           <div className="text-4xl mb-4 animate-bounce">🌱</div>
-          <p className="text-lg text-gray-600">Naglo-load...</p>
+          <p className="text-lg text-gray-600">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -125,7 +128,7 @@ const Profile = () => {
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-            Aking Profile
+            {t("profile.title")}
           </h1>
         </div>
 
@@ -148,7 +151,7 @@ const Profile = () => {
 
           {/* Avatar Selection */}
           <div className="mt-4">
-            <p className="text-sm font-semibold text-gray-700 mb-2">Pumili ng Avatar:</p>
+            <p className="text-sm font-semibold text-gray-700 mb-2">{t("profile.avatar")}</p>
             <div className="grid grid-cols-6 gap-2">
               {avatars.map((avatar) => (
                 <button
@@ -169,16 +172,48 @@ const Profile = () => {
           </div>
         </Card>
 
+        {/* Language Selection */}
+        <Card className="card-spacing bg-white border-2 border-purple-200 shadow-medium rounded-2xl">
+          <div className="flex items-center gap-3 mb-4">
+            <Languages className="w-5 h-5 text-purple-600" />
+            <h3 className="text-xl font-bold text-gray-800">{t("profile.language")}</h3>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              onClick={() => setLanguage("tagalog")}
+              className={cn(
+                "flex-1 h-12",
+                language === "tagalog"
+                  ? "bg-green-600 hover:bg-green-700 text-white"
+                  : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+              )}
+            >
+              {t("profile.tagalog")}
+            </Button>
+            <Button
+              onClick={() => setLanguage("english")}
+              className={cn(
+                "flex-1 h-12",
+                language === "english"
+                  ? "bg-green-600 hover:bg-green-700 text-white"
+                  : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+              )}
+            >
+              {t("profile.english")}
+            </Button>
+          </div>
+        </Card>
+
         {/* Quick Actions */}
         <Card className="card-spacing bg-white border-2 border-blue-200 shadow-medium rounded-2xl">
-          <h3 className="text-xl font-bold text-gray-800 mb-4">Mabilis na Actions</h3>
+          <h3 className="text-xl font-bold text-gray-800 mb-4">{t("profile.quickActions")}</h3>
           <div className="grid grid-cols-2 gap-3">
             <Button
               onClick={() => navigate('/plant-identifier')}
               className="bg-green-600 hover:bg-green-700 text-white h-12"
             >
               <Camera className="w-4 h-4 mr-2" />
-              Identify Plant
+              {t("profile.identifyPlant")}
             </Button>
             <Button
               onClick={() => navigate('/garden')}
@@ -186,7 +221,7 @@ const Profile = () => {
               className="border-green-300 text-green-700 hover:bg-green-50 h-12"
             >
               <LeafyGreen className="w-4 h-4 mr-2" />
-              My Garden
+              {t("profile.myGarden")}
             </Button>
           </div>
         </Card>
@@ -199,7 +234,7 @@ const Profile = () => {
           className="w-full border-red-200 text-red-600 hover:bg-red-50 h-12 disabled:opacity-50"
         >
           <LogOut className="w-4 h-4 mr-2" />
-          {logoutLoading ? "Naglo-logout..." : "Logout"}
+          {logoutLoading ? t("profile.loggingOut") : t("profile.logout")}
         </Button>
       </div>
       <BottomNav />

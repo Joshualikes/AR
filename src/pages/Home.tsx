@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getSessionAsync, onAuthStateChange } from "@/lib/auth";
 import { useUserPlants, usePlantIdentifications } from "@/hooks/useGardenData";
+import { useLanguage } from "@/contexts/LanguageContext";
 import BottomNav from "@/components/BottomNav";
 import {
   MapPin,
@@ -21,6 +22,7 @@ import { cn } from "@/lib/utils";
 
 const Home = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [username, setUsername] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [location, setLocation] = useState("Rizal");
@@ -158,19 +160,19 @@ const Home = () => {
   const plantTools = [
     {
       icon: Camera,
-      label: "Plant Identifier",
+      label: t("home.plantIdentifier"),
       color: "bg-green-500",
       onClick: () => navigate("/plant-identifier"),
     },
     {
       icon: Droplet,
-      label: "Water Meter",
+      label: t("home.waterMeter"),
       color: "bg-green-500",
       onClick: () => navigate("/water"),
     },
     {
       icon: MessageCircle,
-      label: "Kuya Botanist",
+      label: t("home.kuyaBotanist"),
       color: "bg-teal-500",
       onClick: () => navigate("/botanist"),
     },
@@ -185,7 +187,7 @@ const Home = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
-        <p className="text-lg text-gray-600">Naglo-load...</p>
+        <p className="text-lg text-gray-600">{t("common.loading")}</p>
       </div>
     );
   }
@@ -201,7 +203,7 @@ const Home = () => {
             </div>
             <div>
               <span className="font-semibold text-gray-800 text-base block leading-tight">{location}</span>
-              <span className="text-xs text-gray-500">Location</span>
+              <span className="text-xs text-gray-500">{t("home.location")}</span>
             </div>
           </div>
           <div className="flex items-center gap-2.5">
@@ -214,7 +216,7 @@ const Home = () => {
                 )}
               </div>
               <div className="text-xs text-gray-500 leading-tight">
-                Temperature
+                {t("home.temperature")}
               </div>
             </div>
             <div className="p-1.5 bg-blue-100 rounded-lg">
@@ -230,7 +232,7 @@ const Home = () => {
         <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white p-5 rounded-2xl border-0 shadow-lg mb-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-green-100 text-sm">Magandang araw,</p>
+              <p className="text-green-100 text-sm">{t("home.goodDay")}</p>
               <h1 className="text-2xl font-bold">{username || 'Hardinero'}!</h1>
             </div>
             <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3">
@@ -251,14 +253,14 @@ const Home = () => {
                   <Search className="w-5 h-5 text-white" />
                   <span className="text-xl font-bold">{identifiedCount || 0}</span>
                 </div>
-                <p className="text-xs text-green-100">Na-identify na Halaman</p>
+                <p className="text-xs text-green-100">{t("home.identifiedPlants")}</p>
               </div>
               <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3 text-center">
                 <div className="flex items-center justify-center gap-1 mb-1">
                   <LeafyGreen className="w-5 h-5 text-white" />
                   <span className="text-xl font-bold">{plants?.length || 0}</span>
                 </div>
-                <p className="text-xs text-green-100">Naka-save sa Hardin</p>
+                <p className="text-xs text-green-100">{t("home.savedGarden")}</p>
               </div>
             </div>
           )}
@@ -269,7 +271,7 @@ const Home = () => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <div className="w-1 h-6 bg-gradient-to-b from-green-500 to-green-600 rounded-full"></div>
-              <h2 className="text-xl font-bold text-gray-800">Aking mga Halaman</h2>
+              <h2 className="text-xl font-bold text-gray-800">{t("home.myPlants")}</h2>
             </div>
             <Button 
               variant="ghost" 
@@ -277,7 +279,7 @@ const Home = () => {
               className="text-green-600 hover:text-green-700 hover:bg-green-50"
               onClick={() => navigate('/garden')}
             >
-              Tingnan Lahat
+              {t("home.viewAll")}
               <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
@@ -289,14 +291,14 @@ const Home = () => {
           ) : plants.length === 0 ? (
             <Card className="p-6 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl text-center">
               <Sprout className="w-12 h-12 mx-auto text-gray-400 mb-3" />
-              <p className="text-gray-600 font-medium mb-2">Wala ka pang halaman</p>
-              <p className="text-gray-500 text-sm mb-4">Magsimula sa pag-identify ng halaman at i-save sa iyong hardin!</p>
+              <p className="text-gray-600 font-medium mb-2">{t("home.noPlants")}</p>
+              <p className="text-gray-500 text-sm mb-4">{t("home.noPlantsDesc")}</p>
               <Button 
                 className="bg-green-600 hover:bg-green-700"
                 onClick={() => navigate('/plant-identifier')}
               >
                 <Camera className="w-4 h-4 mr-2" />
-                Mag-identify ng Halaman
+                {t("home.identifyPlant")}
               </Button>
             </Card>
           ) : (
@@ -310,7 +312,7 @@ const Home = () => {
                   {plant.imageUrl ? (
                     <img 
                       src={plant.imageUrl} 
-                      alt={plant.plantName}
+                      alt={plant.plantName === "Hindi Halaman" ? t("result.notAPlant") : plant.plantName}
                       className="w-full h-24 object-cover"
                     />
                   ) : (
@@ -319,7 +321,9 @@ const Home = () => {
                     </div>
                   )}
                   <div className="p-3">
-                    <p className="font-semibold text-gray-800 text-sm truncate">{plant.plantName}</p>
+                    <p className="font-semibold text-gray-800 text-sm truncate">
+                      {plant.plantName === "Hindi Halaman" ? t("result.notAPlant") : plant.plantName}
+                    </p>
                     <div className="flex items-center justify-between mt-1">
                       <span className="text-xs text-gray-500">{plant.plantType}</span>
                       <span className={cn("text-xs font-medium", getHealthColor(plant.healthPercentage))}>
@@ -348,9 +352,9 @@ const Home = () => {
         <div>
           <div className="flex items-center gap-2 mb-5">
             <div className="w-1 h-6 bg-gradient-to-b from-green-500 to-green-600 rounded-full"></div>
-            <h2 className="text-xl font-bold text-gray-800">Mga Kasangkapan</h2>
+            <h2 className="text-xl font-bold text-gray-800">{t("home.tools")}</h2>
           </div>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="flex justify-center gap-3">
             {plantTools.map((tool, index) => {
               const Icon = tool.icon;
               return (
